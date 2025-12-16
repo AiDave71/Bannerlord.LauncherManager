@@ -53,6 +53,22 @@ export interface SaveMetadata {
 
 export type GameStore = 'Steam' | 'GOG' | 'Epic' | 'Xbox' | 'Unknown';
 export type GamePlatform = 'Win64' | 'Xbox' | 'Unknown';
+export type GameMode = 'Singleplayer' | 'Multiplayer';
+
+export interface Profile {
+  id: string;
+  name: string;
+  description?: string;
+  gameMode: GameMode;
+  loadOrder: LoadOrder;
+  saveFile?: string;
+  continueLastSave: boolean;
+  customExecutable?: string;
+  createdAt: string;
+  modifiedAt: string;
+  lastUsedAt?: string;
+  tags: string[];
+}
 
 export type NotificationType = 'hint' | 'info' | 'warning' | 'error';
 export type DialogType = 'warning' | 'fileOpen' | 'fileSave';
@@ -120,4 +136,24 @@ export type LauncherManager = {
   dialogTestFileOpenAsync(): Promise<string>;
 
   setGameParameterLoadOrderAsync(loadOrder: LoadOrder): Promise<void>;
+
+  // Profile Management methods
+  getProfilesAsync(): Promise<Profile[]>;
+  getActiveProfileAsync(): Promise<Profile | null>;
+  createProfileAsync(name: string, description?: string): Promise<Profile>;
+  createProfileFromCurrentStateAsync(name: string, description?: string): Promise<Profile>;
+  getProfileByIdAsync(id: string): Promise<Profile | null>;
+  getProfileByNameAsync(name: string): Promise<Profile | null>;
+  updateProfileAsync(profile: Profile): Promise<boolean>;
+  deleteProfileAsync(id: string): Promise<boolean>;
+  duplicateProfileAsync(id: string, newName?: string): Promise<Profile | null>;
+  setActiveProfileAsync(id: string | null): Promise<boolean>;
+  applyProfileAsync(id: string): Promise<boolean>;
+  saveCurrentStateToActiveProfileAsync(): Promise<boolean>;
+  getRecentProfilesAsync(count?: number): Promise<Profile[]>;
+  getProfilesByTagAsync(tag: string): Promise<Profile[]>;
+  exportProfileAsync(id: string): Promise<string | null>;
+  importProfileAsync(json: string): Promise<Profile | null>;
+  exportProfileToFileAsync(id: string, filePath: string): Promise<boolean>;
+  importProfileFromFileAsync(filePath: string): Promise<Profile | null>;
 }
