@@ -85,6 +85,60 @@ export interface FileFilter {
   extensions: string[];
 }
 
+// Mod Update Checker Types
+export type ModUpdateSource = 'Unknown' | 'NexusMods' | 'SteamWorkshop' | 'GitHub' | 'ModDB' | 'Manual';
+export type UpdateCheckStatus = 'Unknown' | 'UpToDate' | 'UpdateAvailable' | 'NewerInstalled' | 'NotTracked' | 'CheckFailed';
+
+export interface ModSourceInfo {
+  moduleId: string;
+  source: ModUpdateSource;
+  sourceId?: string;
+  url?: string;
+  lastChecked?: string;
+  ignoreUpdates: boolean;
+}
+
+export interface ModVersionInfo {
+  moduleId: string;
+  moduleName: string;
+  installedVersion: string;
+  latestVersion?: string;
+  source: ModUpdateSource;
+  status: UpdateCheckStatus;
+  downloadUrl?: string;
+  pageUrl?: string;
+  changelog?: string;
+  releaseDate?: string;
+  fileSize?: number;
+}
+
+export interface UpdateCheckResult {
+  success: boolean;
+  errorMessage?: string;
+  checkedAt: string;
+  totalChecked: number;
+  updatesAvailable: number;
+  upToDate: number;
+  checkFailed: number;
+  modules: ModVersionInfo[];
+  availableUpdates: ModVersionInfo[];
+}
+
+export interface UpdateCheckOptions {
+  moduleIds?: string[];
+  includeIgnored?: boolean;
+  forceRefresh?: boolean;
+  timeoutSeconds?: number;
+}
+
+export interface AutoUpdateSettings {
+  enabled: boolean;
+  intervalHours: number;
+  showNotification: boolean;
+  autoDownload: boolean;
+  lastAutoCheck?: string;
+}
+
 // Launch Statistics Types
 export type SessionOutcome = 'Unknown' | 'Normal' | 'Crash' | 'ForceQuit' | 'Error';
 
@@ -193,4 +247,18 @@ export type LauncherManager = {
   clearStatisticsAsync(): Promise<void>;
   exportStatisticsAsync(): Promise<string>;
   getDailyLaunchCountsAsync(days?: number): Promise<Record<string, number>>;
+
+  // Mod Update Checker methods
+  checkForUpdatesAsync(options?: UpdateCheckOptions): Promise<UpdateCheckResult>;
+  getAvailableUpdatesAsync(): Promise<ModVersionInfo[]>;
+  setModuleSourceAsync(moduleId: string, source: ModUpdateSource, sourceId?: string, url?: string): Promise<void>;
+  getModuleSourceAsync(moduleId: string): Promise<ModSourceInfo | null>;
+  setIgnoreUpdatesAsync(moduleId: string, ignore: boolean): Promise<void>;
+  getIgnoredModulesAsync(): Promise<string[]>;
+  getAutoUpdateSettingsAsync(): Promise<AutoUpdateSettings>;
+  setAutoUpdateSettingsAsync(settings: AutoUpdateSettings): Promise<void>;
+  isAutoCheckDueAsync(): Promise<boolean>;
+  performAutoCheckAsync(): Promise<UpdateCheckResult | null>;
+  getLastCheckResultAsync(): Promise<UpdateCheckResult | null>;
+  clearUpdateCacheAsync(): Promise<void>;
 }
