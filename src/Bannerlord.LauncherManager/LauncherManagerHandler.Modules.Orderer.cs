@@ -16,6 +16,15 @@ partial class LauncherManagerHandler
     protected internal static bool IsVisible(bool isSingleplayer, ModuleInfoExtended moduleInfo) =>
         moduleInfo.IsNative() || !isSingleplayer && moduleInfo.IsMultiplayerModule || isSingleplayer && moduleInfo.IsSingleplayerModule;
 
+    protected internal static bool IsVisible(GameMode gameMode, ModuleInfoExtended moduleInfo) =>
+        IsVisible(gameMode == GameMode.Singleplayer, moduleInfo);
+
+    public async Task<IReadOnlyList<ModuleInfoExtendedWithMetadata>> GetModulesForCurrentModeAsync()
+    {
+        var modules = await GetModulesAsync();
+        return modules.Where(m => IsVisible(_currentGameMode, m)).ToList();
+    }
+
     /// <summary>
     /// External<br/>
     /// </summary>

@@ -9,7 +9,7 @@ namespace Bannerlord.LauncherManager;
 partial class LauncherManagerHandler
 {
     private string _currentExecutable = Constants.BannerlordExecutable;
-    private string? _currentGameMode = "/singleplayer"; // We only support singleplayer
+    private GameMode _currentGameMode = GameMode.Singleplayer;
     private string? _currentLoadOrder;
     private string? _currentSaveFile;
     private bool _continueLastSaveFile;
@@ -39,7 +39,7 @@ partial class LauncherManagerHandler
     {
         var parameters = new[]
         {
-            _currentGameMode ?? string.Empty,
+            GetGameModeParameter(_currentGameMode),
             _currentLoadOrder ?? string.Empty,
             string.IsNullOrEmpty(_currentSaveFile) ? string.Empty : $"/continuesave \"{_currentSaveFile}\"",
             _continueLastSaveFile ? "/continuegame" : string.Empty
@@ -103,6 +103,45 @@ partial class LauncherManagerHandler
         _currentSaveFile = saveName;
         await RefreshGameParametersAsync();
     }
+
+    /// <summary>
+    /// External<br/>
+    /// Sets the game mode (Singleplayer or Multiplayer)
+    /// </summary>
+    public async Task SetGameModeAsync(GameMode gameMode)
+    {
+        _currentGameMode = gameMode;
+        await RefreshGameParametersAsync();
+    }
+
+    /// <summary>
+    /// External<br/>
+    /// Gets the current game mode
+    /// </summary>
+    public GameMode GetGameMode() => _currentGameMode;
+
+    /// <summary>
+    /// Internal<br/>
+    /// Converts GameMode enum to command-line parameter
+    /// </summary>
+    private static string GetGameModeParameter(GameMode gameMode) => gameMode switch
+    {
+        GameMode.Singleplayer => "/singleplayer",
+        GameMode.Multiplayer => "/multiplayer",
+        _ => "/singleplayer"
+    };
+
+    /// <summary>
+    /// External<br/>
+    /// Checks if multiplayer mode is currently selected
+    /// </summary>
+    public bool IsMultiplayerMode() => _currentGameMode == GameMode.Multiplayer;
+
+    /// <summary>
+    /// External<br/>
+    /// Checks if singleplayer mode is currently selected
+    /// </summary>
+    public bool IsSingleplayerMode() => _currentGameMode == GameMode.Singleplayer;
 
     /// <summary>
     /// External<br/>

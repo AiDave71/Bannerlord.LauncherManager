@@ -53,6 +53,7 @@ export interface SaveMetadata {
 
 export type GameStore = 'Steam' | 'GOG' | 'Epic' | 'Xbox' | 'Unknown';
 export type GamePlatform = 'Win64' | 'Xbox' | 'Unknown';
+export type GameMode = 'Singleplayer' | 'Multiplayer';
 
 export type NotificationType = 'hint' | 'info' | 'warning' | 'error';
 export type DialogType = 'warning' | 'fileOpen' | 'fileSave';
@@ -110,6 +111,11 @@ export type LauncherManager = {
   setGameParameterSaveFileAsync(saveName: string): Promise<void>;
   setGameParameterContinueLastSaveFileAsync(value: boolean): Promise<void>;
   setGameStore(gameStore: GameStore): void;
+  setGameModeAsync(gameMode: GameMode): Promise<void>;
+  getGameMode(): GameMode;
+  isMultiplayerMode(): boolean;
+  isSingleplayerMode(): boolean;
+  getModulesForCurrentModeAsync(): Promise<ModuleInfoExtendedWithMetadata[]>;
   sortAsync(): Promise<void>;
   sortHelperChangeModulePositionAsync(moduleViewModel: ModuleViewModel, insertIndex: number): Promise<boolean>;
   sortHelperToggleModuleSelectionAsync(moduleViewModel: ModuleViewModel): Promise<ModuleViewModel>;
