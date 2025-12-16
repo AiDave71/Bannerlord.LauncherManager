@@ -85,6 +85,64 @@ export interface FileFilter {
   extensions: string[];
 }
 
+// Launch Statistics Types
+export type SessionOutcome = 'Unknown' | 'Normal' | 'Crash' | 'ForceQuit' | 'Error';
+
+export interface LaunchRecord {
+  id: string;
+  launchedAt: string;
+  endedAt?: string;
+  duration: number;
+  gameVersion?: string;
+  profileId?: string;
+  profileName?: string;
+  gameMode?: string;
+  enabledModules: string[];
+  moduleCount: number;
+  outcome: SessionOutcome;
+  exitCode?: number;
+  errorMessage?: string;
+}
+
+export interface LaunchStatsSummary {
+  totalLaunches: number;
+  totalPlayTime: number;
+  averageSessionDuration: number;
+  longestSession: number;
+  totalCrashes: number;
+  crashRate: number;
+  firstLaunch?: string;
+  lastLaunch?: string;
+  mostUsedProfile?: string;
+  launchesPerDay: number;
+}
+
+export interface ModuleUsageStats {
+  moduleId: string;
+  moduleName: string;
+  usageCount: number;
+  totalPlayTime: number;
+  crashCount: number;
+  crashRate: number;
+  lastUsed?: string;
+}
+
+export interface CrashCorrelation {
+  moduleId: string;
+  moduleName: string;
+  crashCount: number;
+  totalLaunches: number;
+  crashRate: number;
+  relativeCrashRate: number;
+  confidence: string;
+}
+
+export interface StatisticsTimeRange {
+  startDate?: string;
+  endDate?: string;
+  lastDays?: number;
+}
+
 export type LauncherManager = {
   constructor(): LauncherManager;
 
@@ -120,4 +178,19 @@ export type LauncherManager = {
   dialogTestFileOpenAsync(): Promise<string>;
 
   setGameParameterLoadOrderAsync(loadOrder: LoadOrder): Promise<void>;
+
+  // Launch Statistics methods
+  recordLaunchAsync(): Promise<LaunchRecord>;
+  recordSessionEndAsync(outcome: SessionOutcome, exitCode?: number, errorMessage?: string): Promise<void>;
+  getLaunchHistoryAsync(range?: StatisticsTimeRange): Promise<LaunchRecord[]>;
+  getStatsSummaryAsync(range?: StatisticsTimeRange): Promise<LaunchStatsSummary>;
+  getTotalPlayTimeAsync(range?: StatisticsTimeRange): Promise<number>;
+  getModuleUsageStatsAsync(range?: StatisticsTimeRange): Promise<ModuleUsageStats[]>;
+  getCrashCorrelationsAsync(): Promise<CrashCorrelation[]>;
+  getRecentLaunchesAsync(count?: number): Promise<LaunchRecord[]>;
+  getLaunchesForProfileAsync(profileId: string): Promise<LaunchRecord[]>;
+  getPlayTimeForProfileAsync(profileId: string): Promise<number>;
+  clearStatisticsAsync(): Promise<void>;
+  exportStatisticsAsync(): Promise<string>;
+  getDailyLaunchCountsAsync(days?: number): Promise<Record<string, number>>;
 }
