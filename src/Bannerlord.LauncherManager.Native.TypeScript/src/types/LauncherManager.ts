@@ -85,6 +85,70 @@ export interface FileFilter {
   extensions: string[];
 }
 
+// Load Order Optimizer Types
+export type OptimizationSuggestionType = 'MoveUp' | 'MoveDown' | 'MoveBefore' | 'MoveAfter' | 'Enable' | 'Disable' | 'ResolveConflict';
+export type SuggestionConfidence = 'Low' | 'Medium' | 'High' | 'Required';
+export type SuggestionReason = 'DependencyOrder' | 'LoadBeforeDependency' | 'LoadAfterDependency' | 'ConflictResolution' | 'CommonPattern' | 'PerformanceOptimization' | 'CompatibilityFix';
+
+export interface OptimizationSuggestion {
+  id: string;
+  moduleId: string;
+  moduleName: string;
+  type: OptimizationSuggestionType;
+  targetModuleId?: string;
+  currentPosition: number;
+  suggestedPosition: number;
+  confidence: SuggestionConfidence;
+  reason: SuggestionReason;
+  explanation: string;
+  priority: number;
+}
+
+export interface OptimizationResult {
+  hasIssues: boolean;
+  criticalIssues: number;
+  warnings: number;
+  healthScore: number;
+  suggestions: OptimizationSuggestion[];
+  optimizedOrder?: string[];
+  summary: string;
+}
+
+export interface OptimizationOptions {
+  enabledOnly?: boolean;
+  includeNative?: boolean;
+  generateOptimizedOrder?: boolean;
+  useCommunityPatterns?: boolean;
+  strictnessLevel?: number;
+}
+
+export interface LoadOrderSnapshot {
+  id: string;
+  createdAt: string;
+  description?: string;
+  moduleOrder: string[];
+  enabledState: Record<string, boolean>;
+}
+
+export interface LoadOrderComparison {
+  added: string[];
+  removed: string[];
+  positionChanges: LoadOrderPositionChange[];
+  stateChanges: LoadOrderStateChange[];
+}
+
+export interface LoadOrderPositionChange {
+  moduleId: string;
+  oldPosition: number;
+  newPosition: number;
+}
+
+export interface LoadOrderStateChange {
+  moduleId: string;
+  wasEnabled: boolean;
+  isEnabled: boolean;
+}
+
 // Launch Statistics Types
 export type SessionOutcome = 'Unknown' | 'Normal' | 'Crash' | 'ForceQuit' | 'Error';
 
@@ -193,4 +257,15 @@ export type LauncherManager = {
   clearStatisticsAsync(): Promise<void>;
   exportStatisticsAsync(): Promise<string>;
   getDailyLaunchCountsAsync(days?: number): Promise<Record<string, number>>;
+
+  // Load Order Optimizer methods
+  analyzeLoadOrderAsync(options?: OptimizationOptions): Promise<OptimizationResult>;
+  applyOptimizedOrderAsync(): Promise<boolean>;
+  applySuggestionAsync(suggestionId: string): Promise<boolean>;
+  saveSnapshotAsync(description?: string): Promise<LoadOrderSnapshot>;
+  getSnapshotsAsync(): Promise<LoadOrderSnapshot[]>;
+  restoreSnapshotAsync(snapshotId: string): Promise<boolean>;
+  deleteSnapshotAsync(snapshotId: string): Promise<boolean>;
+  compareWithSnapshotAsync(snapshotId: string): Promise<LoadOrderComparison>;
+  getLoadOrderHealthScoreAsync(): Promise<number>;
 }
