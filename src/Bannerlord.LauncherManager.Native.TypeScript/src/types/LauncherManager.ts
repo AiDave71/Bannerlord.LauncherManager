@@ -85,6 +85,19 @@ export interface FileFilter {
   extensions: string[];
 }
 
+export interface LaunchOptions {
+  runAsAdmin?: boolean;
+  waitForExit?: boolean;
+  workingDirectory?: string;
+}
+
+export interface LaunchResult {
+  success: boolean;
+  errorMessage?: string;
+  processId?: number;
+  exitCode?: number;
+}
+
 export type LauncherManager = {
   constructor(): LauncherManager;
 
@@ -120,4 +133,10 @@ export type LauncherManager = {
   dialogTestFileOpenAsync(): Promise<string>;
 
   setGameParameterLoadOrderAsync(loadOrder: LoadOrder): Promise<void>;
+
+  // Game Launcher methods
+  launchGameAsync(options?: LaunchOptions): Promise<LaunchResult>;
+  launchGameWithExecutableAsync(executablePath: string, launchArgs?: string, options?: LaunchOptions): Promise<LaunchResult>;
+  getGameExecutablePathAsync(): Promise<string | null>;
+  isGameRunning(): boolean;
 }
