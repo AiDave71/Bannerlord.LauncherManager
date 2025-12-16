@@ -85,6 +85,86 @@ export interface FileFilter {
   extensions: string[];
 }
 
+// Mod Download Types
+export type DownloadStatus = 'Pending' | 'Downloading' | 'Paused' | 'Extracting' | 'Installing' | 'Completed' | 'Failed' | 'Cancelled';
+export type ModSource = 'NexusMods' | 'SteamWorkshop' | 'GitHub' | 'Manual' | 'Unknown';
+
+export interface ModUpdateInfo {
+  moduleId: string;
+  name: string;
+  currentVersion: string;
+  latestVersion: string;
+  source: ModSource;
+  downloadUrl?: string;
+  fileSize?: number;
+  changelog?: string;
+  releaseDate?: string;
+  isMajorUpdate: boolean;
+  nexusModId?: number;
+  nexusFileId?: number;
+  steamWorkshopId?: number;
+}
+
+export interface DownloadTask {
+  id: string;
+  moduleId: string;
+  name: string;
+  version: string;
+  source: ModSource;
+  downloadUrl: string;
+  localPath?: string;
+  status: DownloadStatus;
+  totalBytes: number;
+  downloadedBytes: number;
+  progress: number;
+  speedBytesPerSecond: number;
+  estimatedTimeRemaining?: number;
+  startedAt?: string;
+  completedAt?: string;
+  errorMessage?: string;
+  isUpdate: boolean;
+}
+
+export interface UpdateCheckResult {
+  success: boolean;
+  errorMessage?: string;
+  availableUpdates: ModUpdateInfo[];
+  upToDateCount: number;
+  uncheckableCount: number;
+  checkedAt: string;
+}
+
+export interface DownloadResult {
+  success: boolean;
+  errorMessage?: string;
+  task?: DownloadTask;
+  filePath?: string;
+  installed: boolean;
+}
+
+export interface ModSearchResult {
+  name: string;
+  summary?: string;
+  author?: string;
+  version?: string;
+  source: ModSource;
+  downloadUrl?: string;
+  pageUrl?: string;
+  nexusModId?: number;
+  steamWorkshopId?: number;
+  downloadCount?: number;
+  endorsementCount?: number;
+  lastUpdated?: string;
+}
+
+export interface ModSourceConfig {
+  source: ModSource;
+  isEnabled: boolean;
+  apiKey?: string;
+  baseUrl?: string;
+  rateLimitPerMinute: number;
+}
+
 export type LauncherManager = {
   constructor(): LauncherManager;
 
@@ -120,4 +200,18 @@ export type LauncherManager = {
   dialogTestFileOpenAsync(): Promise<string>;
 
   setGameParameterLoadOrderAsync(loadOrder: LoadOrder): Promise<void>;
+
+  // Mod Download methods
+  configureModSourceAsync(config: ModSourceConfig): Promise<boolean>;
+  checkForUpdatesAsync(): Promise<UpdateCheckResult>;
+  checkModuleForUpdateAsync(moduleId: string): Promise<ModUpdateInfo | null>;
+  queueDownload(updateInfo: ModUpdateInfo): DownloadTask;
+  getDownloadQueue(): DownloadTask[];
+  getDownloadTask(taskId: string): DownloadTask | null;
+  processDownloadQueueAsync(downloadDirectory: string): Promise<DownloadResult[]>;
+  downloadModAsync(task: DownloadTask, downloadDirectory: string): Promise<DownloadResult>;
+  cancelDownload(taskId: string): boolean;
+  clearCompletedDownloads(): number;
+  searchModsAsync(query: string, maxResults?: number): Promise<ModSearchResult[]>;
+  downloadAndInstallUpdateAsync(updateInfo: ModUpdateInfo): Promise<DownloadResult>;
 }
