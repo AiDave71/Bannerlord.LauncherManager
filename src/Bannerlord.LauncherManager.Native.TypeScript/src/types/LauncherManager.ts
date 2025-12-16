@@ -85,6 +85,70 @@ export interface FileFilter {
   extensions: string[];
 }
 
+// Dependency Graph Types
+export type DependencyType = 'Required' | 'Optional' | 'Incompatible' | 'LoadBefore' | 'LoadAfter';
+export type GraphExportFormat = 'Json' | 'Dot' | 'Mermaid' | 'Csv';
+
+export interface DependencyNode {
+  id: string;
+  name: string;
+  version: string;
+  isNative: boolean;
+  isSelected: boolean;
+  depth: number;
+  dependentCount: number;
+  dependencyCount: number;
+}
+
+export interface DependencyEdge {
+  sourceId: string;
+  targetId: string;
+  type: DependencyType;
+  requiredVersion?: string;
+  isSatisfied: boolean;
+  label: string;
+}
+
+export interface DependencyGraph {
+  nodes: DependencyNode[];
+  edges: DependencyEdge[];
+  totalNodes: number;
+  totalEdges: number;
+  hasCircularDependencies: boolean;
+  circularChains: string[][];
+  orphanedModules: string[];
+  rootModules: string[];
+}
+
+export interface DependencyTreeNode {
+  id: string;
+  name: string;
+  version: string;
+  type: DependencyType;
+  isSatisfied: boolean;
+  isInstalled: boolean;
+  depth: number;
+  children: DependencyTreeNode[];
+}
+
+export interface ModuleDependencyTree {
+  rootModuleId: string;
+  rootModuleName: string;
+  dependencies: DependencyTreeNode[];
+  dependents: DependencyTreeNode[];
+  totalDependencies: number;
+  totalDependents: number;
+  maxDepth: number;
+}
+
+export interface GraphExportOptions {
+  format?: GraphExportFormat;
+  includeNativeModules?: boolean;
+  includeOptional?: boolean;
+  includeVersions?: boolean;
+  selectedOnly?: boolean;
+}
+
 export type LauncherManager = {
   constructor(): LauncherManager;
 
@@ -120,4 +184,13 @@ export type LauncherManager = {
   dialogTestFileOpenAsync(): Promise<string>;
 
   setGameParameterLoadOrderAsync(loadOrder: LoadOrder): Promise<void>;
+
+  // Dependency Graph methods
+  getDependencyGraphAsync(options?: GraphExportOptions): Promise<DependencyGraph>;
+  getModuleDependencyTreeAsync(moduleId: string): Promise<ModuleDependencyTree>;
+  getCircularDependenciesAsync(): Promise<string[][]>;
+  getOrphanedModulesAsync(): Promise<string[]>;
+  exportDependencyGraphAsync(options?: GraphExportOptions): Promise<string>;
+  getAffectedModulesAsync(moduleId: string): Promise<string[]>;
+  getAllRequiredModulesAsync(moduleId: string): Promise<string[]>;
 }
