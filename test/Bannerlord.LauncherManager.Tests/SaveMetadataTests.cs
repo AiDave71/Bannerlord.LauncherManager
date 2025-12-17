@@ -179,10 +179,10 @@ public class SaveMetadataTests
     [Test]
     public void GetChangeSet_WithNullApplicationVersion_ReturnsMinusOne()
     {
-        var metadata = new SaveMetadata("TestSave")
-        {
-            ["ApplicationVersion"] = null!
-        };
+        var metadata = new SaveMetadata("TestSave");
+        // Explicitly add null value to test null handling in GetChangeSet
+        string? nullVersion = null;
+        metadata["ApplicationVersion"] = nullVersion!;
         
         var changeset = metadata.GetChangeSet();
         

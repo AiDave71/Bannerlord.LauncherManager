@@ -40,7 +40,7 @@ public class LauncherManagerSaveTests
 
         public override Task<IReadOnlyList<SaveMetadata>> GetSaveFilesAsync()
         {
-            return Task.FromResult(_saveFiles ?? (IReadOnlyList<SaveMetadata>)[]);
+            return Task.FromResult(_saveFiles ?? Array.Empty<SaveMetadata>() as IReadOnlyList<SaveMetadata>);
         }
 
         public override Task<SaveMetadata?> GetSaveMetadataAsync(string fileName, ReadOnlyMemory<byte> data)
