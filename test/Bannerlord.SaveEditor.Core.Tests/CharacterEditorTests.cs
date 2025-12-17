@@ -1453,4 +1453,37 @@ public class CharacterEditorTests
 
     #endregion
 
+    #region Comprehensive Gold Tests
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1000)]
+    [InlineData(100000)]
+    public void SetGold_ValidValues_SetsCorrectly(int gold)
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetGold(hero, gold);
+
+        // Assert
+        hero.Gold.Should().Be(gold);
+    }
+
+    [Fact]
+    public void SetGold_LargeValue_SetsCorrectly()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetGold(hero, 1000000);
+
+        // Assert
+        hero.Gold.Should().Be(1000000);
+    }
+
+    #endregion
 }
+
