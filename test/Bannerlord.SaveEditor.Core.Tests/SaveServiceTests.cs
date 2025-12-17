@@ -245,4 +245,28 @@ public class SaveServiceTests : IDisposable
     }
 
     #endregion
+
+    #region Comprehensive Exception Tests
+
+    [Fact]
+    public void SaveLoadException_WithPath_ContainsPath()
+    {
+        // Arrange & Act
+        var ex = new SaveLoadException("Error loading /path/to/file.sav");
+
+        // Assert
+        ex.Message.Should().Contain("/path/to/file.sav");
+    }
+
+    [Fact]
+    public void SaveLoadException_EmptyMessage_Works()
+    {
+        // Arrange & Act
+        var ex = new SaveLoadException(string.Empty);
+
+        // Assert
+        ex.Message.Should().BeEmpty();
+    }
+
+    #endregion
 }
