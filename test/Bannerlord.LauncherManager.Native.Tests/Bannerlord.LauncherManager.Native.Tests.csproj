@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <Target Name="EnsureNativeLibrary" BeforeTargets="Build" Condition="'$(NativeRuntimeIdentifier)' != '' and !Exists('$(NativeLibraryPath)')">
-    <Exec Command="dotnet publish &quot;$(NativeProject)&quot; -c $(Configuration)" />
+    <Exec Command="dotnet publish &quot;$(NativeProject)&quot; -c $(Configuration) -r $(NativeRuntimeIdentifier)" />
   </Target>
 
 </Project>
