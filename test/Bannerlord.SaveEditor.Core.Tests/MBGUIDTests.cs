@@ -95,6 +95,97 @@ public class MBGUIDTests
     }
 
     [Fact]
+    public void Parse_EmptyString_ReturnsEmpty()
+    {
+        var guid = MBGUID.Parse("");
+        guid.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_WhitespaceString_ReturnsEmpty()
+    {
+        var guid = MBGUID.Parse("   ");
+        guid.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_PlainDecimal_ReturnsCorrectGUID()
+    {
+        var guid = MBGUID.Parse("4294967297"); // 0x100000001
+        guid.TypeId.Should().Be(1U);
+        guid.UniqueId.Should().Be(1U);
+    }
+
+    [Fact]
+    public void Parse_InvalidFormat_ThrowsFormatException()
+    {
+        FluentActions.Invoking(() => MBGUID.Parse("not-a-guid-format-xyz"))
+            .Should().Throw<FormatException>();
+    }
+
+    [Fact]
+    public void TryParse_NullString_ReturnsFalse()
+    {
+        var success = MBGUID.TryParse(null, out var guid);
+        success.Should().BeFalse();
+        guid.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryParse_EmptyString_ReturnsFalse()
+    {
+        var success = MBGUID.TryParse("", out var guid);
+        success.Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryParse_ValidFormat_ReturnsTrue()
+    {
+        var success = MBGUID.TryParse("1-1234", out var guid);
+        success.Should().BeTrue();
+        guid.TypeId.Should().Be(1U);
+        guid.UniqueId.Should().Be(1234U);
+    }
+
+    [Fact]
+    public void Type_ReturnsCorrectMBGUIDType()
+    {
+        var guid = MBGUID.Generate(MBGUIDType.Party);
+        guid.Type.Should().Be(MBGUIDType.Party);
+    }
+
+    [Fact]
+    public void Empty_IsStaticEmptyGUID()
+    {
+        MBGUID.Empty.IsEmpty.Should().BeTrue();
+        MBGUID.Empty.InternalValue.Should().Be(0UL);
+    }
+
+    [Fact]
+    public void CompareTo_SameValue_ReturnsZero()
+    {
+        var guid1 = new MBGUID(1, 1234);
+        var guid2 = new MBGUID(1, 1234);
+        guid1.CompareTo(guid2).Should().Be(0);
+    }
+
+    [Fact]
+    public void CompareTo_DifferentValue_ReturnsNonZero()
+    {
+        var guid1 = new MBGUID(1, 1234);
+        var guid2 = new MBGUID(1, 5678);
+        guid1.CompareTo(guid2).Should().NotBe(0);
+    }
+
+    [Fact]
+    public void GetHashCode_SameValues_ReturnsSameHash()
+    {
+        var guid1 = new MBGUID(1, 1234);
+        var guid2 = new MBGUID(1, 1234);
+        guid1.GetHashCode().Should().Be(guid2.GetHashCode());
+    }
+
+    [Fact]
     public void Equality_SameValues_ReturnsTrue()
     {
         var guid1 = new MBGUID(1, 1234);

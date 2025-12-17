@@ -515,4 +515,357 @@ public class CharacterEditorTests
     }
 
     #endregion
+
+    #region Level & Experience Tests
+
+    [Fact]
+    public void SetLevel_ValidLevel_SetsLevelAndXP()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetLevel(hero, 25);
+
+        // Assert
+        hero.Level.Should().Be(25);
+        hero.Experience.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void SetLevel_HighLevel_SetsWithWarning()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act - level above 62 should work but warn
+        _editor.SetLevel(hero, 70);
+
+        // Assert
+        hero.Level.Should().Be(70);
+    }
+
+    [Fact]
+    public void AddLevels_IncreasesLevel()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.Level = 10;
+
+        // Act
+        _editor.AddLevels(hero, 5);
+
+        // Assert
+        hero.Level.Should().Be(15);
+    }
+
+    [Fact]
+    public void SetExperience_SetsXP()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetExperience(hero, 50000);
+
+        // Assert
+        hero.Experience.Should().Be(50000);
+    }
+
+    [Fact]
+    public void SetExperience_NegativeValue_ClampsToZero()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetExperience(hero, -1000);
+
+        // Assert
+        hero.Experience.Should().Be(0);
+    }
+
+    #endregion
+
+    #region Gold & Resources Tests
+
+    [Fact]
+    public void AddGold_PositiveAmount_IncreasesGold()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.Gold = 1000;
+
+        // Act
+        _editor.AddGold(hero, 500);
+
+        // Assert
+        hero.Gold.Should().Be(1500);
+    }
+
+    [Fact]
+    public void AddGold_NegativeAmount_ThrowsWhenResultNegative()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.Gold = 100;
+
+        // Act & Assert - SetGold throws when negative
+        FluentActions.Invoking(() => _editor.AddGold(hero, -200))
+            .Should().Throw<EditorException>();
+    }
+
+    #endregion
+
+    #region Health & State Tests
+
+    [Fact]
+    public void SetHealth_ClampsToRange()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetHealth(hero, 150);
+
+        // Assert
+        hero.Health.Should().BeLessOrEqualTo(hero.MaxHealth);
+    }
+
+    [Fact]
+    public void SetHealth_NegativeValue_ClampsToZero()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetHealth(hero, -50);
+
+        // Assert
+        hero.Health.Should().Be(0);
+    }
+
+    [Fact]
+    public void FullHeal_RestoresHealthAndClearsWounded()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.Health = 50;
+        hero.IsWounded = true;
+
+        // Act
+        _editor.FullHeal(hero);
+
+        // Assert
+        hero.Health.Should().Be(hero.MaxHealth);
+        hero.IsWounded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void SetState_ChangesState()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetState(hero, HeroState.Prisoner);
+
+        // Assert
+        hero.State.Should().Be(HeroState.Prisoner);
+    }
+
+    [Fact]
+    public void Resurrect_DeadHero_ResurrectsAndHeals()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.State = HeroState.Dead;
+        hero.Health = 0;
+
+        // Act
+        _editor.Resurrect(hero);
+
+        // Assert
+        hero.State.Should().Be(HeroState.Active);
+        hero.Health.Should().Be(hero.MaxHealth);
+    }
+
+    [Fact]
+    public void Resurrect_AliveHero_DoesNothing()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.State = HeroState.Active;
+        hero.Health = 50;
+
+        // Act
+        _editor.Resurrect(hero);
+
+        // Assert
+        hero.State.Should().Be(HeroState.Active);
+        hero.Health.Should().Be(50);
+    }
+
+    #endregion
+
+    #region Age & Appearance Tests
+
+    [Fact]
+    public void SetAge_ValidAge_SetsAge()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetAge(hero, 35);
+
+        // Assert
+        hero.Age.Should().Be(35);
+    }
+
+    [Fact]
+    public void SetAge_BelowMinimum_SetsWithWarning()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetAge(hero, 15);
+
+        // Assert
+        hero.Age.Should().Be(15);
+    }
+
+    [Fact]
+    public void SetAge_AboveMaximum_SetsWithWarning()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetAge(hero, 110);
+
+        // Assert
+        hero.Age.Should().Be(110);
+    }
+
+    [Fact]
+    public void ExportAppearance_NullAppearance_ReturnsEmpty()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.Appearance = null;
+
+        // Act
+        var result = _editor.ExportAppearance(hero);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region Perk Tests
+
+    [Fact]
+    public void UnlockPerk_NewPerk_AddsPerk()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.UnlockPerk(hero, "test_perk");
+
+        // Assert
+        hero.UnlockedPerks.Should().Contain("test_perk");
+    }
+
+    [Fact]
+    public void UnlockPerk_ExistingPerk_DoesNotDuplicate()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.UnlockedPerks.Add("test_perk");
+
+        // Act
+        _editor.UnlockPerk(hero, "test_perk");
+
+        // Assert
+        hero.UnlockedPerks.Count(p => p == "test_perk").Should().Be(1);
+    }
+
+    [Fact]
+    public void LockPerk_ExistingPerk_RemovesPerk()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.UnlockedPerks.Add("test_perk");
+
+        // Act
+        _editor.LockPerk(hero, "test_perk");
+
+        // Assert
+        hero.UnlockedPerks.Should().NotContain("test_perk");
+    }
+
+    [Fact]
+    public void LockAllPerks_ClearsAllPerks()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+        hero.UnlockedPerks.Add("perk1");
+        hero.UnlockedPerks.Add("perk2");
+
+        // Act
+        _editor.LockAllPerks(hero);
+
+        // Assert
+        hero.UnlockedPerks.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void UnlockAllPerks_ForSkill_UnlocksSkillPerks()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.UnlockAllPerks(hero, SkillType.OneHanded);
+
+        // Assert
+        hero.UnlockedPerks.Should().NotBeEmpty();
+    }
+
+    #endregion
+
+    #region SetAllSkills Tests
+
+    [Fact]
+    public void SetAllSkills_ClampsValue()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetAllSkills(hero, 500); // Over max
+
+        // Assert
+        hero.Skills.OneHanded.Should().Be(300);
+        hero.Skills.TwoHanded.Should().Be(300);
+    }
+
+    [Fact]
+    public void SetAllSkills_ClampsNegativeToZero()
+    {
+        // Arrange
+        var hero = CreateTestHero();
+
+        // Act
+        _editor.SetAllSkills(hero, -50); // Negative
+
+        // Assert
+        hero.Skills.OneHanded.Should().Be(0);
+    }
+
+    #endregion
 }

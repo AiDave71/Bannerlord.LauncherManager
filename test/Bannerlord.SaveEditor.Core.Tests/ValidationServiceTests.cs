@@ -365,4 +365,394 @@ public class ValidationServiceTests
     }
 
     #endregion
+
+    #region Ship Validation Tests
+
+    [Fact]
+    public void ValidateFleet_WithShips_ValidatesEachShip()
+    {
+        // Arrange
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Test Fleet",
+            Morale = 50
+        };
+
+        var ship1 = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Ship 1",
+            Type = ShipType.Longship,
+            CurrentHullPoints = 100,
+            CrewCount = 50
+        };
+
+        var ship2 = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Ship 2",
+            Type = ShipType.Galley,
+            CurrentHullPoints = -10 // Invalid - negative hull
+        };
+
+        fleet.Ships.Add(ship1);
+        fleet.Ships.Add(ship2);
+
+        // Act
+        var report = _service.ValidateFleet(fleet);
+
+        // Assert
+        report.IsValid.Should().BeFalse();
+        report.Errors.Should().Contain(e => e.Code == "SHIP_HULL_001");
+    }
+
+    [Fact]
+    public void ValidateFleet_ShipHullExceedsMax_ReturnsError()
+    {
+        // Arrange
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Test Fleet",
+            Morale = 50
+        };
+
+        var ship = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Overpowered Ship",
+            Type = ShipType.Snekkja, // Small ship with 300 max hull
+            CurrentHullPoints = 5000 // Way exceeds max
+        };
+
+        fleet.Ships.Add(ship);
+        fleet.Flagship = ship;
+
+        // Act
+        var report = _service.ValidateFleet(fleet);
+
+        // Assert
+        report.IsValid.Should().BeFalse();
+        report.Errors.Should().Contain(e => e.Code == "SHIP_HULL_002");
+    }
+
+    [Fact]
+    public void ValidateFleet_ShipCrewExceedsCapacity_ReturnsError()
+    {
+        // Arrange
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Test Fleet",
+            Morale = 50
+        };
+
+        var ship = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Overcrowded Ship",
+            Type = ShipType.Snekkja, // Small ship with 20 crew capacity
+            CurrentHullPoints = 100,
+            CrewCount = 500 // Way exceeds capacity
+        };
+
+        fleet.Ships.Add(ship);
+        fleet.Flagship = ship;
+
+        // Act
+        var report = _service.ValidateFleet(fleet);
+
+        // Assert
+        report.IsValid.Should().BeFalse();
+        report.Errors.Should().Contain(e => e.Code == "SHIP_CREW_002");
+    }
+
+    [Fact]
+    public void ValidateFleet_ShipNegativeCrew_ReturnsError()
+    {
+        // Arrange
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Test Fleet",
+            Morale = 50
+        };
+
+        var ship = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Ghost Ship",
+            Type = ShipType.Longship,
+            CurrentHullPoints = 100,
+            CrewCount = -10 // Invalid negative
+        };
+
+        fleet.Ships.Add(ship);
+        fleet.Flagship = ship;
+
+        // Act
+        var report = _service.ValidateFleet(fleet);
+
+        // Assert
+        report.IsValid.Should().BeFalse();
+        report.Errors.Should().Contain(e => e.Code == "SHIP_CREW_001");
+    }
+
+    [Fact]
+    public void ValidateFleet_ShipMoraleOutOfRange_ReturnsWarning()
+    {
+        // Arrange
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Test Fleet",
+            Morale = 50
+        };
+
+        var ship = new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Unhappy Ship",
+            Type = ShipType.Longship,
+            CurrentHullPoints = 100,
+            CrewMorale = 150 // Out of range
+        };
+
+        fleet.Ships.Add(ship);
+        fleet.Flagship = ship;
+
+        // Act
+        var report = _service.ValidateFleet(fleet);
+
+        // Assert
+        report.HasWarnings.Should().BeTrue();
+        report.Warnings.Should().Contain(w => w.Code == "SHIP_MORALE_001");
+    }
+
+    #endregion
+
+    #region Full Save Validation Tests
+
+    [Fact]
+    public void Validate_SaveWithInvalidHero_ReturnsErrors()
+    {
+        // Arrange
+        var save = new SaveFile
+        {
+            FilePath = "test.sav",
+            Name = "Test Save",
+            Header = new SaveHeader { Version = 7, GameVersion = "v1.2.0" },
+            Metadata = new SaveMetadata { CharacterName = "Test", Level = 10 }
+        };
+
+        save.Heroes.Add(new HeroData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Hero),
+            Name = "Invalid Hero",
+            Level = 0, // Invalid
+            Gold = -100, // Invalid
+            Attributes = new HeroAttributes { Vigor = -5 }, // Invalid
+            Skills = new SkillSet()
+        });
+
+        // Act
+        var report = _service.Validate(save);
+
+        // Assert
+        report.IsValid.Should().BeFalse();
+        report.Errors.Count.Should().BeGreaterOrEqualTo(2);
+    }
+
+    [Fact]
+    public void Validate_SaveWithFleets_ValidatesFleets()
+    {
+        // Arrange
+        var save = new SaveFile
+        {
+            FilePath = "test.sav",
+            Name = "Test Save",
+            Header = new SaveHeader { Version = 7, GameVersion = "v1.2.0" },
+            Metadata = new SaveMetadata { CharacterName = "Test", Level = 10 }
+        };
+
+        var fleet = new FleetData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Fleet),
+            Name = "Invalid Fleet",
+            Morale = -50 // Invalid
+        };
+        save.Fleets.Add(fleet);
+
+        // Act
+        var report = _service.Validate(save);
+
+        // Assert
+        report.HasWarnings.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_SaveWithMissingVersion_ReturnsWarning()
+    {
+        // Arrange
+        var save = new SaveFile
+        {
+            FilePath = "test.sav",
+            Name = "Test Save",
+            Header = new SaveHeader { Version = 7, GameVersion = "" },
+            Metadata = new SaveMetadata { CharacterName = "Test", Level = 10 }
+        };
+
+        // Act
+        var report = _service.Validate(save);
+
+        // Assert
+        report.HasWarnings.Should().BeTrue();
+        report.Warnings.Should().Contain(w => w.Code == "HEADER_001");
+    }
+
+    [Fact]
+    public void Validate_SaveWithUnusualVersion_ReturnsWarning()
+    {
+        // Arrange
+        var save = new SaveFile
+        {
+            FilePath = "test.sav",
+            Name = "Test Save",
+            Header = new SaveHeader { Version = 999, GameVersion = "v1.0" },
+            Metadata = new SaveMetadata { CharacterName = "Test", Level = 10 }
+        };
+
+        // Act
+        var report = _service.Validate(save);
+
+        // Assert
+        report.HasWarnings.Should().BeTrue();
+        report.Warnings.Should().Contain(w => w.Code == "HEADER_002");
+    }
+
+    #endregion
+
+    #region Validation Mode Tests
+
+    [Fact]
+    public void SetValidationMode_Strict_ReturnsMoreWarnings()
+    {
+        // Arrange
+        var hero = CreateValidHero();
+        hero.Attributes.Vigor = 15; // Over 10
+        _service.SetValidationMode(ValidationMode.Strict);
+
+        // Act
+        var report = _service.ValidateHero(hero);
+
+        // Assert
+        report.HasWarnings.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SetValidationMode_Permissive_ReturnsFewerWarnings()
+    {
+        // Arrange
+        var hero = CreateValidHero();
+        hero.Attributes.Vigor = 15;
+        _service.SetValidationMode(ValidationMode.Permissive);
+
+        // Act
+        var report = _service.ValidateHero(hero);
+
+        // Assert
+        report.IsValid.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region ValidationReport Tests
+
+    [Fact]
+    public void ValidationReport_Merge_CombinesReports()
+    {
+        // Arrange
+        var report1 = new ValidationReport();
+        report1.AddError("ERR1", "Error 1");
+        report1.AddWarning("WARN1", "Warning 1");
+
+        var report2 = new ValidationReport();
+        report2.AddError("ERR2", "Error 2");
+        report2.AddInfo("INFO1", "Info 1");
+
+        // Act
+        report1.Merge(report2);
+
+        // Assert
+        report1.Errors.Should().HaveCount(2);
+        report1.Warnings.Should().HaveCount(1);
+        report1.Info.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void ValidationIssue_ToString_FormatsCorrectly()
+    {
+        // Arrange
+        var issue = new ValidationIssue(ValidationSeverity.Error, "TEST_001", "Test message", "Test.Path");
+
+        // Act
+        var result = issue.ToString();
+
+        // Assert
+        result.Should().Contain("[Error]");
+        result.Should().Contain("TEST_001");
+        result.Should().Contain("Test message");
+        result.Should().Contain("Test.Path");
+    }
+
+    [Fact]
+    public void ValidationIssue_ToString_NoPath_FormatsWithoutPath()
+    {
+        // Arrange
+        var issue = new ValidationIssue(ValidationSeverity.Warning, "WARN_001", "Warning message");
+
+        // Act
+        var result = issue.ToString();
+
+        // Assert
+        result.Should().Contain("[Warning]");
+        result.Should().NotContain(" at ");
+    }
+
+    #endregion
+
+    #region PerkDatabase Tests
+
+    [Fact]
+    public void PerkDatabase_IsValidPerk_KnownPerk_ReturnsTrue()
+    {
+        // Act
+        var result = PerkDatabase.IsValidPerk("swift_strike");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void PerkDatabase_IsValidPerk_ModPerk_ReturnsTrue()
+    {
+        // Act - mod_ prefixed perks should be valid
+        var result = PerkDatabase.IsValidPerk("mod_custom_perk");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void PerkDatabase_IsValidPerk_UnknownPerk_ReturnsFalse()
+    {
+        // Act
+        var result = PerkDatabase.IsValidPerk("completely_unknown_perk");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
 }

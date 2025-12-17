@@ -514,4 +514,79 @@ public sealed class SaveParserTests : IDisposable
     }
 
     #endregion
+
+    #region LoadOptions Tests
+
+    [Fact]
+    public void LoadOptions_DefaultValues_AreCorrect()
+    {
+        // Arrange & Act
+        var options = new LoadOptions();
+
+        // Assert
+        options.MetadataOnly.Should().BeFalse();
+        options.KeepRawData.Should().BeFalse();
+        options.Permissive.Should().BeFalse();
+        options.SkipValidation.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LoadAsync_MetadataOnly_LoadsOnlyMetadata()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+        var options = new LoadOptions { MetadataOnly = true };
+
+        // Act
+        var save = await _parser.LoadAsync(savePath, options);
+
+        // Assert
+        save.Should().NotBeNull();
+        save.Metadata.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_SkipValidation_SkipsValidation()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+        var options = new LoadOptions { SkipValidation = true };
+
+        // Act
+        var save = await _parser.LoadAsync(savePath, options);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Error Handling Tests
+
+    [Fact]
+    public async Task LoadAsync_NonExistentFile_ThrowsException()
+    {
+        // Arrange
+        var nonExistentPath = Path.Combine(_testDirectory, "nonexistent.sav");
+
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadAsync(nonExistentPath))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_ValidFile_ReturnsInfo()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var info = await _parser.LoadInfoAsync(savePath);
+
+        // Assert
+        info.Should().NotBeNull();
+        info.Path.Should().Be(savePath);
+    }
+
+    #endregion
 }
