@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650">
+  <defs>
+    <linearGradient id="classGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6"/>
+      <stop offset="100%" style="stop-color:#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="interfaceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="entityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6"/>
+      <stop offset="100%" style="stop-color:#6D28D9"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="30" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#1F2937" text-anchor="middle">Class Diagram - Core Components</text>
+
+  <!-- ISaveService Interface -->
+  <rect x="50" y="60" width="200" height="130" rx="8" fill="url(#interfaceGrad)" filter="url(#shadow)"/>
+  <text x="150" y="85" font-family="Arial, sans-serif" font-size="10" fill="#A7F3D0" text-anchor="middle">«interface»</text>
+  <text x="150" y="102" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">ISaveService</text>
+  <line x1="60" y1="110" x2="240" y2="110" stroke="#A7F3D0" stroke-width="1"/>
+  <text x="60" y="128" font-family="Consolas, monospace" font-size="9" fill="#D1FAE5">+ LoadAsync()</text>
+  <text x="60" y="142" font-family="Consolas, monospace" font-size="9" fill="#D1FAE5">+ SaveAsync()</text>
+  <text x="60" y="156" font-family="Consolas, monospace" font-size="9" fill="#D1FAE5">+ DiscoverSavesAsync()</text>
+  <text x="60" y="170" font-family="Consolas, monospace" font-size="9" fill="#D1FAE5">+ GetSaveInfoAsync()</text>
+
+  <!-- SaveService Class -->
+  <rect x="50" y="220" width="200" height="150" rx="8" fill="url(#classGrad)" filter="url(#shadow)"/>
+  <text x="150" y="245" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">SaveService</text>
+  <line x1="60" y1="255" x2="240" y2="255" stroke="#93C5FD" stroke-width="1"/>
+  <text x="60" y="273" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">- _parser: SaveParser</text>
+  <text x="60" y="287" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">- _writer: SaveWriter</text>
+  <text x="60" y="301" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">- _validation: IValidation</text>
+  <line x1="60" y1="310" x2="240" y2="310" stroke="#93C5FD" stroke-width="1"/>
+  <text x="60" y="328" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ LoadAsync()</text>
+  <text x="60" y="342" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SaveAsync()</text>
+  <text x="60" y="356" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ DiscoverSavesAsync()</text>
+
+  <!-- Inheritance arrow -->
+  <line x1="150" y1="190" x2="150" y2="220" stroke="#6B7280" stroke-width="2"/>
+  <polygon points="150,190 145,200 155,200" fill="white" stroke="#6B7280" stroke-width="1"/>
+
+  <!-- CharacterEditor -->
+  <rect x="300" y="60" width="180" height="140" rx="8" fill="url(#classGrad)" filter="url(#shadow)"/>
+  <text x="390" y="85" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">CharacterEditor</text>
+  <line x1="310" y1="95" x2="470" y2="95" stroke="#93C5FD" stroke-width="1"/>
+  <text x="310" y="113" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetGoldAsync()</text>
+  <text x="310" y="127" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetLevelAsync()</text>
+  <text x="310" y="141" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetAttributeAsync()</text>
+  <text x="310" y="155" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetSkillAsync()</text>
+  <text x="310" y="169" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ AddPerkAsync()</text>
+  <text x="310" y="183" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetStateAsync()</text>
+
+  <!-- PartyEditor -->
+  <rect x="300" y="220" width="180" height="130" rx="8" fill="url(#classGrad)" filter="url(#shadow)"/>
+  <text x="390" y="245" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">PartyEditor</text>
+  <line x1="310" y1="255" x2="470" y2="255" stroke="#93C5FD" stroke-width="1"/>
+  <text x="310" y="273" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ AddTroopsAsync()</text>
+  <text x="310" y="287" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ RemoveTroopsAsync()</text>
+  <text x="310" y="301" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetFoodAsync()</text>
+  <text x="310" y="315" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetMoraleAsync()</text>
+  <text x="310" y="329" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ HealWoundedAsync()</text>
+
+  <!-- FleetEditor -->
+  <rect x="300" y="370" width="180" height="140" rx="8" fill="url(#classGrad)" filter="url(#shadow)"/>
+  <text x="390" y="395" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">FleetEditor</text>
+  <line x1="310" y1="405" x2="470" y2="405" stroke="#93C5FD" stroke-width="1"/>
+  <text x="310" y="423" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetAdmiralAsync()</text>
+  <text x="310" y="437" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ RepairShipAsync()</text>
+  <text x="310" y="451" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetCrewAsync()</text>
+  <text x="310" y="465" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ AddUpgradeAsync()</text>
+  <text x="310" y="479" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ AddCargoAsync()</text>
+  <text x="310" y="493" font-family="Consolas, monospace" font-size="9" fill="#DBEAFE">+ SetFlagshipAsync()</text>
+
+  <!-- HeroData Entity -->
+  <rect x="530" y="60" width="160" height="150" rx="8" fill="url(#entityGrad)" filter="url(#shadow)"/>
+  <text x="610" y="85" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">HeroData</text>
+  <line x1="540" y1="95" x2="680" y2="95" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="540" y="113" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Id: MBGUID</text>
+  <text x="540" y="127" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Name: string</text>
+  <text x="540" y="141" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Level: int</text>
+  <text x="540" y="155" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Attributes: HeroAttr</text>
+  <text x="540" y="169" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Skills: SkillSet</text>
+  <text x="540" y="183" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ UnlockedPerks: ISet</text>
+  <text x="540" y="197" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ IsAlive: bool</text>
+
+  <!-- PartyData Entity -->
+  <rect x="530" y="230" width="160" height="130" rx="8" fill="url(#entityGrad)" filter="url(#shadow)"/>
+  <text x="610" y="255" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">PartyData</text>
+  <line x1="540" y1="265" x2="680" y2="265" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="540" y="283" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Id: MBGUID</text>
+  <text x="540" y="297" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Name: string</text>
+  <text x="540" y="311" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ TroopStacks: IList</text>
+  <text x="540" y="325" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Prisoners: IList</text>
+  <text x="540" y="339" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Gold: int</text>
+  <text x="540" y="353" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Food: float</text>
+
+  <!-- FleetData Entity -->
+  <rect x="530" y="380" width="160" height="130" rx="8" fill="url(#entityGrad)" filter="url(#shadow)"/>
+  <text x="610" y="405" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">FleetData</text>
+  <line x1="540" y1="415" x2="680" y2="415" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="540" y="433" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Id: MBGUID</text>
+  <text x="540" y="447" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Name: string</text>
+  <text x="540" y="461" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Ships: IList</text>
+  <text x="540" y="475" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Admiral: HeroData</text>
+  <text x="540" y="489" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ TotalCrewCount</text>
+  <text x="540" y="503" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ TotalCargoCapacity</text>
+
+  <!-- MBGUID -->
+  <rect x="720" y="60" width="150" height="120" rx="8" fill="url(#entityGrad)" filter="url(#shadow)"/>
+  <text x="795" y="85" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">MBGUID</text>
+  <line x1="730" y1="95" x2="860" y2="95" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="730" y="113" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Type: MBGUIDType</text>
+  <text x="730" y="127" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ InternalValue: ulong</text>
+  <text x="730" y="141" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ IsEmpty: bool</text>
+  <line x1="730" y1="150" x2="860" y2="150" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="730" y="168" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Generate(type)</text>
+
+  <!-- CampaignTime -->
+  <rect x="720" y="200" width="150" height="130" rx="8" fill="url(#entityGrad)" filter="url(#shadow)"/>
+  <text x="795" y="225" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">CampaignTime</text>
+  <line x1="730" y1="235" x2="860" y2="235" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="730" y="253" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Ticks: long</text>
+  <text x="730" y="267" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Year: int</text>
+  <text x="730" y="281" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ Season: int</text>
+  <text x="730" y="295" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ DayOfSeason: int</text>
+  <line x1="730" y1="305" x2="860" y2="305" stroke="#C4B5FD" stroke-width="1"/>
+  <text x="730" y="323" font-family="Consolas, monospace" font-size="9" fill="#EDE9FE">+ FromComponents()</text>
+
+  <!-- Associations -->
+  <line x1="480" y1="130" x2="530" y2="130" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <line x1="480" y1="285" x2="530" y2="285" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <line x1="480" y1="440" x2="530" y2="440" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+  <!-- Legend -->
+  <rect x="50" y="530" width="280" height="100" rx="8" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="1"/>
+  <text x="70" y="555" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#374151">Legend</text>
+  <rect x="70" y="570" width="20" height="12" rx="2" fill="url(#interfaceGrad)"/>
+  <text x="100" y="580" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Interface</text>
+  <rect x="70" y="590" width="20" height="12" rx="2" fill="url(#classGrad)"/>
+  <text x="100" y="600" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Service/Editor Class</text>
+  <rect x="70" y="610" width="20" height="12" rx="2" fill="url(#entityGrad)"/>
+  <text x="100" y="620" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Entity/Model</text>
+
+  <!-- Footer -->
+  <text x="450" y="640" font-family="Arial, sans-serif" font-size="10" fill="#9CA3AF" text-anchor="middle">Bannerlord Save Editor - Core Class Structure</text>
+</svg>

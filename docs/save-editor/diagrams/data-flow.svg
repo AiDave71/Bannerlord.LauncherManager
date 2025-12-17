@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <linearGradient id="loadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="saveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EF4444;stop-opacity:1" />
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6B7280"/>
+    </marker>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937" text-anchor="middle">Data Flow Diagram</text>
+
+  <!-- Load Flow Section -->
+  <rect x="30" y="60" width="840" height="180" rx="15" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+  <text x="50" y="85" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1E40AF">Load Flow</text>
+
+  <!-- Load Flow Steps -->
+  <rect x="50" y="110" width="100" height="60" rx="8" fill="#3B82F6" filter="url(#dropShadow)"/>
+  <text x="100" y="135" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">.sav File</text>
+  <text x="100" y="150" font-family="Arial, sans-serif" font-size="9" fill="#BFDBFE" text-anchor="middle">(Compressed)</text>
+
+  <line x1="150" y1="140" x2="180" y2="140" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="190" y="110" width="110" height="60" rx="8" fill="#0EA5E9" filter="url(#dropShadow)"/>
+  <text x="245" y="135" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">SaveParser</text>
+  <text x="245" y="150" font-family="Arial, sans-serif" font-size="9" fill="#BAE6FD" text-anchor="middle">Read Header</text>
+
+  <line x1="300" y1="140" x2="330" y2="140" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="340" y="110" width="110" height="60" rx="8" fill="#06B6D4" filter="url(#dropShadow)"/>
+  <text x="395" y="135" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">ZlibHandler</text>
+  <text x="395" y="150" font-family="Arial, sans-serif" font-size="9" fill="#A5F3FC" text-anchor="middle">Decompress</text>
+
+  <line x1="450" y1="140" x2="480" y2="140" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="490" y="110" width="110" height="60" rx="8" fill="#14B8A6" filter="url(#dropShadow)"/>
+  <text x="545" y="135" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">JSON Parser</text>
+  <text x="545" y="150" font-family="Arial, sans-serif" font-size="9" fill="#99F6E4" text-anchor="middle">Deserialize</text>
+
+  <line x1="600" y1="140" x2="630" y2="140" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="640" y="110" width="110" height="60" rx="8" fill="#10B981" filter="url(#dropShadow)"/>
+  <text x="695" y="135" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Build Models</text>
+  <text x="695" y="150" font-family="Arial, sans-serif" font-size="9" fill="#A7F3D0" text-anchor="middle">Hydrate Refs</text>
+
+  <line x1="750" y1="140" x2="780" y2="140" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="790" y="110" width="70" height="60" rx="8" fill="#059669" filter="url(#dropShadow)"/>
+  <text x="825" y="140" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">SaveFile</text>
+
+  <!-- Status indicators -->
+  <circle cx="100" cy="195" r="8" fill="#3B82F6"/>
+  <text x="115" y="199" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Binary</text>
+  <circle cx="245" cy="195" r="8" fill="#0EA5E9"/>
+  <text x="260" y="199" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Metadata</text>
+  <circle cx="395" cy="195" r="8" fill="#06B6D4"/>
+  <text x="410" y="199" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Raw JSON</text>
+  <circle cx="545" cy="195" r="8" fill="#14B8A6"/>
+  <text x="560" y="199" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Objects</text>
+  <circle cx="695" cy="195" r="8" fill="#10B981"/>
+  <text x="710" y="199" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Linked</text>
+
+  <!-- Save Flow Section -->
+  <rect x="30" y="260" width="840" height="180" rx="15" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+  <text x="50" y="285" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#92400E">Save Flow</text>
+
+  <!-- Save Flow Steps -->
+  <rect x="50" y="310" width="70" height="60" rx="8" fill="#059669" filter="url(#dropShadow)"/>
+  <text x="85" y="340" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">SaveFile</text>
+
+  <line x1="120" y1="340" x2="150" y2="340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="160" y="310" width="110" height="60" rx="8" fill="#F59E0B" filter="url(#dropShadow)"/>
+  <text x="215" y="335" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Validation</text>
+  <text x="215" y="350" font-family="Arial, sans-serif" font-size="9" fill="#FEF3C7" text-anchor="middle">Check Rules</text>
+
+  <line x1="270" y1="340" x2="300" y2="340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="310" y="310" width="110" height="60" rx="8" fill="#EAB308" filter="url(#dropShadow)"/>
+  <text x="365" y="335" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Backup</text>
+  <text x="365" y="350" font-family="Arial, sans-serif" font-size="9" fill="#FEF9C3" text-anchor="middle">Create Copy</text>
+
+  <line x1="420" y1="340" x2="450" y2="340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="460" y="310" width="110" height="60" rx="8" fill="#F97316" filter="url(#dropShadow)"/>
+  <text x="515" y="335" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Serialize</text>
+  <text x="515" y="350" font-family="Arial, sans-serif" font-size="9" fill="#FFEDD5" text-anchor="middle">To JSON</text>
+
+  <line x1="570" y1="340" x2="600" y2="340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="610" y="310" width="110" height="60" rx="8" fill="#EA580C" filter="url(#dropShadow)"/>
+  <text x="665" y="335" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Compress</text>
+  <text x="665" y="350" font-family="Arial, sans-serif" font-size="9" fill="#FED7AA" text-anchor="middle">ZLIB</text>
+
+  <line x1="720" y1="340" x2="750" y2="340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="760" y="310" width="100" height="60" rx="8" fill="#DC2626" filter="url(#dropShadow)"/>
+  <text x="810" y="335" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Write File</text>
+  <text x="810" y="350" font-family="Arial, sans-serif" font-size="9" fill="#FECACA" text-anchor="middle">+ Verify</text>
+
+  <!-- Status indicators -->
+  <circle cx="85" cy="395" r="8" fill="#059669"/>
+  <text x="100" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Modified</text>
+  <circle cx="215" cy="395" r="8" fill="#F59E0B"/>
+  <text x="230" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Validated</text>
+  <circle cx="365" cy="395" r="8" fill="#EAB308"/>
+  <text x="380" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Backed Up</text>
+  <circle cx="515" cy="395" r="8" fill="#F97316"/>
+  <text x="530" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">JSON</text>
+  <circle cx="665" cy="395" r="8" fill="#EA580C"/>
+  <text x="680" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Binary</text>
+  <circle cx="810" cy="395" r="8" fill="#DC2626"/>
+  <text x="825" y="399" font-family="Arial, sans-serif" font-size="10" fill="#6B7280">Complete</text>
+
+  <!-- Footer -->
+  <text x="450" y="480" font-family="Arial, sans-serif" font-size="10" fill="#9CA3AF" text-anchor="middle">Bannerlord Save Editor - Data Flow Pipeline</text>
+</svg>
