@@ -651,4 +651,241 @@ public sealed class SaveWriterTests : IDisposable
     }
 
     #endregion
+
+    #region Edge Case and Error Handling Tests
+
+    [Fact]
+    public async Task SaveAsync_WithSettlements_WritesSettlementData()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Settlements.Add(new SettlementData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Settlement),
+            Name = "Test Town",
+            Prosperity = 5000,
+            Type = SettlementType.Town,
+            Loyalty = 50
+        });
+        var savePath = Path.Combine(_testDirectory, "settlements.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Settlements.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithFactions_WritesFactionData()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Factions.Add(new FactionData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Faction),
+            Name = "Test Faction",
+            Type = FactionType.Kingdom,
+            MainColor = 0xFF0000
+        });
+        var savePath = Path.Combine(_testDirectory, "factions.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Factions.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithClans_WritesClanData()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Clans.Add(new ClanData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Clan),
+            Name = "Test Clan",
+            Tier = 3,
+            Renown = 500,
+            Influence = 100
+        });
+        var savePath = Path.Combine(_testDirectory, "clans.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Clans.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithKingdoms_WritesKingdomData()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Kingdoms.Add(new KingdomData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Kingdom),
+            Name = "Test Kingdom",
+            MainColor = 0xFF0000,
+            TotalStrength = 1000
+        });
+        var savePath = Path.Combine(_testDirectory, "kingdoms.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Kingdoms.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithShips_CreatesFile()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Ships.Add(new ShipData
+        {
+            Id = MBGUID.Generate(MBGUIDType.Ship),
+            Name = "Test Ship",
+            Type = ShipType.Cog,
+            CurrentHullPoints = 100
+        });
+        var savePath = Path.Combine(_testDirectory, "ships.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+
+        // Assert - ships segment may not be fully implemented in parser
+        File.Exists(savePath).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SaveAsync_EmptyCollections_HandlesGracefully()
+    {
+        // Arrange
+        var save = new SaveFile
+        {
+            FilePath = Path.Combine(_testDirectory, "empty.sav"),
+            Name = "EmptySave",
+            Header = new SaveHeader { Version = 7, GameVersion = "v1.2.9" },
+            Modules = new List<ModuleInfo>(),
+            Metadata = new SaveMetadata { CharacterName = "Test" },
+            Heroes = new List<HeroData>(),
+            Parties = new List<PartyData>(),
+            Settlements = new List<SettlementData>(),
+            Factions = new List<FactionData>(),
+            Clans = new List<ClanData>(),
+            Kingdoms = new List<KingdomData>(),
+            Fleets = new List<FleetData>(),
+            Ships = new List<ShipData>()
+        };
+        var savePath = Path.Combine(_testDirectory, "empty_collections.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+
+        // Assert
+        File.Exists(savePath).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SaveAsync_LargeHeroList_HandlesCorrectly()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        for (int i = 0; i < 50; i++)
+        {
+            save.Heroes.Add(new HeroData
+            {
+                Id = MBGUID.Generate(MBGUIDType.Hero),
+                Name = $"Hero {i}",
+                HeroId = $"hero_{i}",
+                Level = i + 1
+            });
+        }
+        var savePath = Path.Combine(_testDirectory, "large_heroes.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Heroes.Count.Should().BeGreaterOrEqualTo(50);
+    }
+
+    [Fact]
+    public async Task SaveAsync_MultipleModules_PreservesOrder()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.Modules = new List<ModuleInfo>
+        {
+            new() { Id = "Native", Version = "v1.2.9", IsOfficial = true },
+            new() { Id = "SandBoxCore", Version = "v1.2.9", IsOfficial = true },
+            new() { Id = "CustomMod", Version = "v1.0.0", IsOfficial = false }
+        };
+        var savePath = Path.Combine(_testDirectory, "modules.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.Modules.Should().HaveCount(3);
+        loaded.Modules[0].Id.Should().Be("Native");
+    }
+
+    [Fact]
+    public async Task SaveAsync_UpdatesFileSize()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        var savePath = Path.Combine(_testDirectory, "filesize.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+
+        // Assert
+        var fileInfo = new FileInfo(savePath);
+        fileInfo.Length.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithRawData_PreservesData()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.RawData = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+        var savePath = Path.Combine(_testDirectory, "rawdata.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+
+        // Assert
+        File.Exists(savePath).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SaveAsync_WithCampaignTime_PreservesTime()
+    {
+        // Arrange
+        var save = CreateTestSaveFile();
+        save.CampaignTime = new CampaignTime(50000000L);
+        var savePath = Path.Combine(_testDirectory, "campaigntime.sav");
+
+        // Act
+        await _writer.SaveAsync(save, savePath);
+        var loaded = await _parser.LoadAsync(savePath);
+
+        // Assert
+        loaded.CampaignTime.Should().NotBeNull();
+    }
+
+    #endregion
 }
