@@ -1452,5 +1452,5 @@ public class CharacterEditorTests
     }
 
     #endregion
-}
 
+}
