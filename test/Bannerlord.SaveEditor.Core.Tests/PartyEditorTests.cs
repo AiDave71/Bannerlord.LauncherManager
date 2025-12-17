@@ -1182,4 +1182,138 @@ public class PartyEditorTests
     }
 
     #endregion
+
+    #region Comprehensive Gold Tests
+
+    [Fact]
+    public void SetGold_ValidAmount_SetsGold()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetGold(party, 5000);
+
+        // Assert
+        party.Gold.Should().Be(5000);
+    }
+
+    [Fact]
+    public void SetGold_Zero_SetsToZero()
+    {
+        // Arrange
+        var party = CreateTestParty();
+        party.Gold = 1000;
+
+        // Act
+        _editor.SetGold(party, 0);
+
+        // Assert
+        party.Gold.Should().Be(0);
+    }
+
+    #endregion
+
+    #region Comprehensive Food Tests
+
+    [Fact]
+    public void SetFood_ValidAmount_SetsFood()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetFood(party, 100);
+
+        // Assert
+        party.Food.Should().Be(100);
+    }
+
+    #endregion
+
+    #region Comprehensive Morale Tests
+
+    [Fact]
+    public void SetMorale_ValidValue_SetsMorale()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetMorale(party, 75f);
+
+        // Assert
+        party.Morale.Should().BeGreaterThanOrEqualTo(0);
+    }
+
+    #endregion
+
+    #region Comprehensive Troop Tier Tests
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    public void AddTroops_VariousTiers_SetsCorrectTier(int tier)
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.AddTroops(party, $"tier{tier}", $"Tier {tier} Unit", 10, tier);
+
+        // Assert
+        party.Troops.Should().Contain(t => t.TroopId == $"tier{tier}" && t.Tier == tier);
+    }
+
+    [Fact]
+    public void AddTroops_SameTierTwice_MergesStacks()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.AddTroops(party, "infantry", "Infantry", 10, 2);
+        _editor.AddTroops(party, "infantry", "Infantry", 5, 2);
+
+        // Assert
+        party.Troops.Count(t => t.TroopId == "infantry").Should().Be(1);
+        party.Troops.First(t => t.TroopId == "infantry").Count.Should().Be(15);
+    }
+
+    #endregion
+
+    #region Comprehensive Prisoner Tests
+
+    [Fact]
+    public void AddPrisoners_SingleStack_AddsToPrisoners()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.AddPrisoners(party, "enemy", "Enemy", 5, 2);
+
+        // Assert
+        party.Prisoners.Should().Contain(p => p.TroopId == "enemy" && p.Count == 5);
+    }
+
+    [Fact]
+    public void AddPrisoners_MultipleStacks_AddsAll()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.AddPrisoners(party, "looter", "Looter", 10, 1);
+        _editor.AddPrisoners(party, "bandit", "Bandit", 5, 2);
+        _editor.AddPrisoners(party, "raider", "Raider", 3, 3);
+
+        // Assert
+        party.Prisoners.Should().HaveCount(3);
+    }
+
+    #endregion
 }
