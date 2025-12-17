@@ -1316,4 +1316,70 @@ public class PartyEditorTests
     }
 
     #endregion
+
+    #region Comprehensive Party State Tests
+
+    [Theory]
+    [InlineData(PartyState.Active)]
+    [InlineData(PartyState.InSettlement)]
+    public void SetState_AllStates_SetsCorrectly(PartyState state)
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetState(party, state);
+
+        // Assert
+        party.State.Should().Be(state);
+    }
+
+    [Fact]
+    public void SetState_ChangeFromActive_UpdatesState()
+    {
+        // Arrange
+        var party = CreateTestParty();
+        party.State = PartyState.Active;
+
+        // Act
+        _editor.SetState(party, PartyState.InSettlement);
+
+        // Assert
+        party.State.Should().Be(PartyState.InSettlement);
+    }
+
+    #endregion
+
+    #region Comprehensive Food Tests
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    [InlineData(500)]
+    public void SetFood_ValidValues_SetsCorrectly(int food)
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetFood(party, food);
+
+        // Assert
+        party.Food.Should().Be(food);
+    }
+
+    [Fact]
+    public void SetFood_LargeValue_SetsCorrectly()
+    {
+        // Arrange
+        var party = CreateTestParty();
+
+        // Act
+        _editor.SetFood(party, 1000);
+
+        // Assert
+        party.Food.Should().Be(1000);
+    }
+
+    #endregion
 }
