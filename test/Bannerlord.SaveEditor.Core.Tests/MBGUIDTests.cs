@@ -629,4 +629,200 @@ public class MBGUIDTests
     }
 
     #endregion
+
+    #region Comprehensive Type Conversion Tests
+
+    [Theory]
+    [InlineData(MBGUIDType.Hero)]
+    [InlineData(MBGUIDType.Party)]
+    [InlineData(MBGUIDType.Settlement)]
+    [InlineData(MBGUIDType.Fleet)]
+    [InlineData(MBGUIDType.Clan)]
+    [InlineData(MBGUIDType.Kingdom)]
+    public void Generate_AllTypes_CreateValidGuids(MBGUIDType type)
+    {
+        // Act
+        var guid = MBGUID.Generate(type);
+
+        // Assert
+        guid.IsEmpty.Should().BeFalse();
+        guid.Type.Should().Be(type);
+    }
+
+    [Theory]
+    [InlineData(1u)]
+    [InlineData(100u)]
+    [InlineData(1000u)]
+    [InlineData(uint.MaxValue)]
+    public void Constructor_VariousUniqueIds_SetsCorrectly(uint uniqueId)
+    {
+        // Act
+        var guid = new MBGUID(1, uniqueId);
+
+        // Assert
+        guid.UniqueId.Should().Be(uniqueId);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(10)]
+    public void Constructor_VariousTypeIds_SetsCorrectly(byte typeId)
+    {
+        // Act
+        var guid = new MBGUID(typeId, 100);
+
+        // Assert
+        guid.TypeId.Should().Be(typeId);
+    }
+
+    #endregion
+
+    #region Comprehensive Operator Tests
+
+    [Fact]
+    public void EqualityOperator_SameGuids_ReturnsTrue()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(1, 100);
+
+        // Act & Assert
+        (guid1 == guid2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void EqualityOperator_DifferentGuids_ReturnsFalse()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(1, 200);
+
+        // Act & Assert
+        (guid1 == guid2).Should().BeFalse();
+    }
+
+    [Fact]
+    public void InequalityOperator_DifferentGuids_ReturnsTrue()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(2, 100);
+
+        // Act & Assert
+        (guid1 != guid2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void InequalityOperator_SameGuids_ReturnsFalse()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(1, 100);
+
+        // Act & Assert
+        (guid1 != guid2).Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Comprehensive Equals Tests
+
+    [Fact]
+    public void Equals_SameInstance_ReturnsTrue()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals(guid).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_NullObject_ReturnsFalse()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_DifferentType_ReturnsFalse()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals("not a guid").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_EqualGuids_ReturnsTrue()
+    {
+        // Arrange
+        var guid1 = new MBGUID(3, 300);
+        var guid2 = new MBGUID(3, 300);
+
+        // Act & Assert
+        guid1.Equals((object)guid2).Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Comprehensive Collection Tests
+
+    [Fact]
+    public void HashSet_SameGuids_CountsAsOne()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(1, 100);
+        var set = new HashSet<MBGUID> { guid1, guid2 };
+
+        // Assert
+        set.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public void HashSet_DifferentGuids_CountsAsSeparate()
+    {
+        // Arrange
+        var guid1 = MBGUID.Generate(MBGUIDType.Hero);
+        var guid2 = MBGUID.Generate(MBGUIDType.Party);
+        var set = new HashSet<MBGUID> { guid1, guid2 };
+
+        // Assert
+        set.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public void Dictionary_CanUseAsKey()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+        var dict = new Dictionary<MBGUID, string> { { guid, "test" } };
+
+        // Act & Assert
+        dict[guid].Should().Be("test");
+    }
+
+    [Fact]
+    public void List_CanContainGuids()
+    {
+        // Arrange
+        var list = new List<MBGUID>
+        {
+            MBGUID.Generate(MBGUIDType.Hero),
+            MBGUID.Generate(MBGUIDType.Party),
+            MBGUID.Generate(MBGUIDType.Settlement)
+        };
+
+        // Assert
+        list.Count.Should().Be(3);
+    }
+
+    #endregion
 }
