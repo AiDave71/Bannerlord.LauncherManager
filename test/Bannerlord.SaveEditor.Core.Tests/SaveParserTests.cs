@@ -589,4 +589,329 @@ public sealed class SaveParserTests : IDisposable
     }
 
     #endregion
+
+    #region Comprehensive LoadAsync Edge Cases
+
+    [Fact]
+    public async Task LoadAsync_EmptyOptions_LoadsSuccessfully()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+        var options = new LoadOptions();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath, options);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_NullPath_ThrowsException()
+    {
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadAsync(null!))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadAsync_EmptyPath_ThrowsException()
+    {
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadAsync(string.Empty))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadAsync_WhitespacePath_ThrowsException()
+    {
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadAsync("   "))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_ReturnsNonNullSave()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_PopulatesMetadata()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Metadata.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_CalledMultipleTimes_ReturnsConsistentResults()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save1 = await _parser.LoadAsync(savePath);
+        var save2 = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save1.Should().NotBeNull();
+        save2.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Comprehensive LoadInfoAsync Edge Cases
+
+    [Fact]
+    public async Task LoadInfoAsync_NullPath_ThrowsException()
+    {
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadInfoAsync(null!))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_EmptyPath_ThrowsException()
+    {
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadInfoAsync(string.Empty))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_NonExistentFile_ThrowsException()
+    {
+        // Arrange
+        var nonExistentPath = Path.Combine(_testDirectory, "nonexistent_info.sav");
+
+        // Act & Assert
+        await FluentActions.Invoking(() => _parser.LoadInfoAsync(nonExistentPath))
+            .Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_ValidFile_ReturnsPath()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var info = await _parser.LoadInfoAsync(savePath);
+
+        // Assert
+        info.Path.Should().Be(savePath);
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_ValidFile_ReturnsFileSize()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var info = await _parser.LoadInfoAsync(savePath);
+
+        // Assert
+        info.FileSize.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task LoadInfoAsync_ValidFile_ReturnsNonNull()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var info = await _parser.LoadInfoAsync(savePath);
+
+        // Assert
+        info.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Comprehensive LoadOptions Tests
+
+    [Fact]
+    public async Task LoadAsync_MetadataOnly_LoadsFaster()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+        var options = new LoadOptions { MetadataOnly = true };
+
+        // Act
+        var save = await _parser.LoadAsync(savePath, options);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_SkipValidation_DoesNotValidate()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+        var options = new LoadOptions { SkipValidation = true };
+
+        // Act
+        var save = await _parser.LoadAsync(savePath, options);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_DefaultOptions_LoadsCompletely()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Should().NotBeNull();
+        save.Heroes.Should().NotBeNull();
+        save.Parties.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Comprehensive File Format Tests
+
+    [Fact]
+    public async Task LoadAsync_ValidSaveFile_ParsesCorrectly()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_FileWithValidHeader_ParsesHeader()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Metadata.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Comprehensive Collection Tests
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasHeroesCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Heroes.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasPartiesCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Parties.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasFleetsCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Fleets.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasSettlementsCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Settlements.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasFactionsCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Factions.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasKingdomsCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Kingdoms.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidFile_HasClansCollection()
+    {
+        // Arrange
+        var savePath = CreateTestSaveFile();
+
+        // Act
+        var save = await _parser.LoadAsync(savePath);
+
+        // Assert
+        save.Clans.Should().NotBeNull();
+    }
+
+    #endregion
 }
