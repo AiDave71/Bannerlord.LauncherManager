@@ -204,4 +204,429 @@ public class MBGUIDTests
         (guid1 != guid2).Should().BeTrue();
         guid1.Equals(guid2).Should().BeFalse();
     }
+
+    #region Comprehensive Type Tests
+
+    [Theory]
+    [InlineData(MBGUIDType.None)]
+    [InlineData(MBGUIDType.Hero)]
+    [InlineData(MBGUIDType.Party)]
+    [InlineData(MBGUIDType.Settlement)]
+    [InlineData(MBGUIDType.Clan)]
+    [InlineData(MBGUIDType.Kingdom)]
+    [InlineData(MBGUIDType.Fleet)]
+    [InlineData(MBGUIDType.Ship)]
+    public void Generate_AllTypes_CreatesValidGUID(MBGUIDType type)
+    {
+        // Act
+        var guid = MBGUID.Generate(type);
+
+        // Assert
+        guid.Type.Should().Be(type);
+        guid.IsEmpty.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(MBGUIDType.None)]
+    [InlineData(MBGUIDType.Hero)]
+    [InlineData(MBGUIDType.Party)]
+    [InlineData(MBGUIDType.Settlement)]
+    [InlineData(MBGUIDType.Clan)]
+    [InlineData(MBGUIDType.Kingdom)]
+    [InlineData(MBGUIDType.Fleet)]
+    [InlineData(MBGUIDType.Ship)]
+    public void Constructor_AllTypes_SetsTypeCorrectly(MBGUIDType type)
+    {
+        // Act
+        var guid = new MBGUID((byte)type, 12345);
+
+        // Assert
+        guid.TypeId.Should().Be((byte)type);
+    }
+
+    #endregion
+
+    #region Comprehensive Parse Edge Cases
+
+    [Theory]
+    [InlineData("1-1")]
+    [InlineData("5-12345")]
+    [InlineData("255-4294967295")]
+    public void Parse_ValidFormats_ParsesCorrectly(string input)
+    {
+        // Act
+        var guid = MBGUID.Parse(input);
+
+        // Assert - non-zero inputs should parse to non-empty GUIDs
+        guid.IsEmpty.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("invalid")]
+    [InlineData("not-a-guid")]
+    [InlineData("abc")]
+    public void TryParse_InvalidFormats_ReturnsFalse(string input)
+    {
+        // Act
+        var success = MBGUID.TryParse(input, out var guid);
+
+        // Assert
+        success.Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryParse_ValidDashFormat_ReturnsTrue()
+    {
+        // Act
+        var success = MBGUID.TryParse("1-12345", out var guid);
+
+        // Assert
+        success.Should().BeTrue();
+        guid.TypeId.Should().Be(1);
+        guid.UniqueId.Should().Be(12345);
+    }
+
+    [Fact]
+    public void TryParse_EmptyInput_ReturnsFalse()
+    {
+        // Act
+        var success = MBGUID.TryParse(string.Empty, out var guid);
+
+        // Assert
+        success.Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryParse_NullInput_ReturnsFalse()
+    {
+        // Act
+        var success = MBGUID.TryParse(null!, out var guid);
+
+        // Assert
+        success.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Comprehensive Equality Edge Cases
+
+    [Fact]
+    public void Equals_WithNull_ReturnsFalse()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_WithSelf_ReturnsTrue()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals(guid).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_WithDifferentType_ReturnsFalse()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        guid.Equals("not a guid").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_EmptyGuids_ReturnsTrue()
+    {
+        // Act & Assert
+        MBGUID.Empty.Equals(MBGUID.Empty).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equality_Operator_EmptyGuids_ReturnsTrue()
+    {
+        // Act & Assert
+        (MBGUID.Empty == MBGUID.Empty).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Inequality_Operator_EmptyAndNonEmpty_ReturnsTrue()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act & Assert
+        (MBGUID.Empty != guid).Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Comprehensive CompareTo Edge Cases
+
+    [Fact]
+    public void CompareTo_EmptyWithEmpty_ReturnsZero()
+    {
+        // Act & Assert
+        MBGUID.Empty.CompareTo(MBGUID.Empty).Should().Be(0);
+    }
+
+    [Fact]
+    public void CompareTo_EmptyWithNonEmpty_ReturnsNegative()
+    {
+        // Arrange
+        var guid = new MBGUID(1, 1);
+
+        // Act & Assert
+        MBGUID.Empty.CompareTo(guid).Should().BeLessThan(0);
+    }
+
+    [Fact]
+    public void CompareTo_NonEmptyWithEmpty_ReturnsPositive()
+    {
+        // Arrange
+        var guid = new MBGUID(1, 1);
+
+        // Act & Assert
+        guid.CompareTo(MBGUID.Empty).Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void CompareTo_SameType_DifferentUniqueId_ComparesCorrectly()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(1, 200);
+
+        // Act & Assert
+        guid1.CompareTo(guid2).Should().BeLessThan(0);
+        guid2.CompareTo(guid1).Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void CompareTo_DifferentTypes_ComparesCorrectly()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(2, 100);
+
+        // Act & Assert
+        guid1.CompareTo(guid2).Should().NotBe(0);
+    }
+
+    #endregion
+
+    #region Comprehensive GetHashCode Edge Cases
+
+    [Fact]
+    public void GetHashCode_EmptyGuid_ReturnsConsistentValue()
+    {
+        // Act
+        var hash1 = MBGUID.Empty.GetHashCode();
+        var hash2 = MBGUID.Empty.GetHashCode();
+
+        // Assert
+        hash1.Should().Be(hash2);
+    }
+
+    [Fact]
+    public void GetHashCode_DifferentGuids_ReturnsDifferentHashes()
+    {
+        // Arrange - use Generate to ensure non-zero values
+        var guid1 = MBGUID.Generate(MBGUIDType.Hero);
+        var guid2 = MBGUID.Generate(MBGUIDType.Party);
+
+        // Act & Assert - while collisions are possible, different types should differ
+        guid1.GetHashCode().Should().NotBe(guid2.GetHashCode());
+    }
+
+    [Fact]
+    public void GetHashCode_MultipleCallsSameGuid_ReturnsSameHash()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Act
+        var hash1 = guid.GetHashCode();
+        var hash2 = guid.GetHashCode();
+        var hash3 = guid.GetHashCode();
+
+        // Assert
+        hash1.Should().Be(hash2);
+        hash2.Should().Be(hash3);
+    }
+
+    #endregion
+
+    #region Comprehensive ToString Edge Cases
+
+    [Fact]
+    public void ToString_EmptyGuid_ReturnsExpectedFormat()
+    {
+        // Act
+        var result = MBGUID.Empty.ToString();
+
+        // Assert
+        result.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void ToString_GeneratedGuid_ContainsTypeAndId()
+    {
+        // Arrange
+        var guid = new MBGUID(5, 12345);
+
+        // Act
+        var result = guid.ToString();
+
+        // Assert
+        result.Should().Contain("5");
+        result.Should().Contain("12345");
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 1)]
+    [InlineData(255, 999999)]
+    public void ToString_VariousValues_FormatsCorrectly(byte typeId, uint uniqueId)
+    {
+        // Arrange
+        var guid = new MBGUID(typeId, uniqueId);
+
+        // Act
+        var result = guid.ToString();
+
+        // Assert
+        result.Should().NotBeNullOrEmpty();
+    }
+
+    #endregion
+
+    #region Comprehensive InternalValue Tests
+
+    [Fact]
+    public void InternalValue_EmptyGuid_IsZero()
+    {
+        // Assert
+        MBGUID.Empty.InternalValue.Should().Be(0UL);
+    }
+
+    [Fact]
+    public void InternalValue_NonEmptyGuid_IsNotZero()
+    {
+        // Arrange
+        var guid = new MBGUID(1, 1);
+
+        // Assert
+        guid.InternalValue.Should().NotBe(0UL);
+    }
+
+    [Fact]
+    public void InternalValue_SameGuids_HaveSameValue()
+    {
+        // Arrange
+        var guid1 = new MBGUID(5, 12345);
+        var guid2 = new MBGUID(5, 12345);
+
+        // Assert
+        guid1.InternalValue.Should().Be(guid2.InternalValue);
+    }
+
+    [Fact]
+    public void InternalValue_DifferentGuids_HaveDifferentValues()
+    {
+        // Arrange
+        var guid1 = new MBGUID(1, 100);
+        var guid2 = new MBGUID(2, 200);
+
+        // Assert
+        guid1.InternalValue.Should().NotBe(guid2.InternalValue);
+    }
+
+    #endregion
+
+    #region Comprehensive IsEmpty Tests
+
+    [Fact]
+    public void IsEmpty_DefaultConstructor_ReturnsTrue()
+    {
+        // Arrange
+        var guid = default(MBGUID);
+
+        // Assert
+        guid.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsEmpty_StaticEmpty_ReturnsTrue()
+    {
+        // Assert
+        MBGUID.Empty.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsEmpty_NonZeroTypeId_ReturnsFalse()
+    {
+        // Arrange - use explicit byte cast
+        var guid = new MBGUID((byte)1, (uint)0);
+
+        // Assert
+        guid.IsEmpty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsEmpty_GeneratedGuid_IsNotEmpty()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Party);
+
+        // Assert
+        guid.IsEmpty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsEmpty_GeneratedGuid_ReturnsFalse()
+    {
+        // Arrange
+        var guid = MBGUID.Generate(MBGUIDType.Hero);
+
+        // Assert
+        guid.IsEmpty.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Comprehensive Generate Tests
+
+    [Fact]
+    public void Generate_MultipleCallsSameType_CreatesUniqueGuids()
+    {
+        // Act
+        var guids = Enumerable.Range(0, 100)
+            .Select(_ => MBGUID.Generate(MBGUIDType.Hero))
+            .ToList();
+
+        // Assert - all should be unique
+        guids.Distinct().Count().Should().Be(100);
+    }
+
+    [Fact]
+    public void Generate_DifferentTypes_CreatesDifferentTypeIds()
+    {
+        // Act
+        var heroGuid = MBGUID.Generate(MBGUIDType.Hero);
+        var partyGuid = MBGUID.Generate(MBGUIDType.Party);
+        var fleetGuid = MBGUID.Generate(MBGUIDType.Fleet);
+
+        // Assert
+        heroGuid.TypeId.Should().NotBe(partyGuid.TypeId);
+        partyGuid.TypeId.Should().NotBe(fleetGuid.TypeId);
+    }
+
+    #endregion
 }
